@@ -1,28 +1,48 @@
-require 'rspec'
-require 'file_reader'
+require_relative '../lib/file_reader'
 
-FIXTURES = File.join(Dir.pwd, 'spec', 'fixtures').freeze
+FIXTURES = File.join(__dir__, 'fixtures').freeze
+ONE_CLOTHING_ITEM_DIR_PATH = File.join(FIXTURES, 'one_clothing_item')
+SEVERAL_CLOTHES_DIR_PATH = File.join(FIXTURES, 'several_clothing_items')
+EMPTY_DIR_PATH = File.join(FIXTURES, 'empty_dir')
 
-describe 'FileReader' do
-  it 'reads one clothes info' do
-    clothes_dir_path = File.join(FIXTURES, 'one_clothing_item')
-    clothes_info = FileReader.read_clothes_info(clothes_dir_path)
-    expect(clothes_info).to eq [['Джинсы', 'Штаны', -5..15]]
-  end
+RSpec.describe FileReader do
+  describe '#read_clothes_info' do
+    context 'when there is one file' do
+      it 'returns one item' do
+        clothes_info = FileReader.read_clothes_info(ONE_CLOTHING_ITEM_DIR_PATH)
+        expect(clothes_info).to eq [{ item_name: 'Джинсы',
+                                      clothing_type: 'Штаны',
+                                      temperature_range: -5..15 }]
+      end
+    end
 
-  it 'reads several clothes info' do
-    clothes_dir_path = File.join(FIXTURES, 'several_clothing_items')
-    clothes_info = FileReader.read_clothes_info(clothes_dir_path)
-    expect(clothes_info).to eq [['Кроссовки', 'Обувь', 0..15],
-                                ['Зимняя куртка', 'Верхняя одежда', -35..-10],
-                                ['Валенки', 'Обувь', -40..-10],
-                                ['Джинсы', 'Штаны', -5..15],
-                                ['Пальто', 'Верхняя одежда', -5..10]]
-  end
+    context 'when there is several files' do
+      it 'returns one several items' do
+        clothes_info = FileReader.read_clothes_info(SEVERAL_CLOTHES_DIR_PATH)
+        expect(clothes_info)
+          .to eq [{ item_name: 'Кроссовки',
+                    clothing_type: 'Обувь',
+                    temperature_range: 0..15 },
+                  { item_name: 'Зимняя куртка',
+                    clothing_type: 'Верхняя одежда',
+                    temperature_range: -35..-10 },
+                  { item_name: 'Валенки',
+                    clothing_type: 'Обувь',
+                    temperature_range: -40..-10 },
+                  { item_name: 'Джинсы',
+                    clothing_type: 'Штаны',
+                    temperature_range: -5..15 },
+                  { item_name: 'Пальто',
+                    clothing_type: 'Верхняя одежда',
+                    temperature_range: -5..10 }]
+      end
+    end
 
-  it 'reads from empty dir' do
-    empty_dir = File.join(FIXTURES, 'empty_dir')
-    expect { FileReader.read_clothes_info(empty_dir) }
-      .to raise_error(RuntimeError, 'Empty clothes directory')
+    context 'when there is no files in dir' do
+      it 'throws an error' do
+        expect { FileReader.read_clothes_info(EMPTY_DIR_PATH) }
+          .to raise_error(RuntimeError, 'Error: Empty clothes directory')
+      end
+    end
   end
 end

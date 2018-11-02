@@ -8,7 +8,13 @@ class Wardrobe
   end
 
   def initialize(clothes_info)
-    clothing_items = clothes_info.map { |info| ClothingItem.new(*info) }
+    clothing_items = clothes_info.map do |info|
+      ClothingItem.new(
+        item_name: info[:item_name],
+        clothing_type: info[:clothing_type],
+        temperature_range: info[:temperature_range]
+      )
+    end
     @clothing_items = organize_wardrobe(clothing_items)
   end
 
